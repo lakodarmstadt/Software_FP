@@ -16,7 +16,7 @@ def find_bmp_filenames( path_to_dir, suffix=".bmp"):
     return [ path_to_dir+filename for filename in filenames if filename.endswith( suffix ) ]
 
 def gaussian_1D(height, center, width, offset):
-    width=float(width) #width is defined as 1/e^2 of the intensity
+    width=float(width) #width is defined as the standard deviation of the density distribution
     return lambda x: height*np.exp(-((center-x)/(2*width))**2)+offset
 
 def gaussian_2D(height, center_x, center_y, width_x, width_y,offset):
