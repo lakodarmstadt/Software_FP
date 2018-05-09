@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import os
 
-um=1e-6
+um = 1e-6
 
 def find_bmp_filenames( path_to_dir, suffix=".bmp"):
     if path_to_dir.endswith('/') == False:
@@ -17,13 +17,13 @@ def find_bmp_filenames( path_to_dir, suffix=".bmp"):
 
 def gaussian_1D(height, center, width, offset):
     width=float(width) #width is defined as the standard deviation of the density distribution
-    return lambda x: height*np.exp(-((center-x)/(2*width))**2)+offset
+    return lambda x: height*np.exp(-(1/2)*((center-x)/(width))**2)+offset
 
 def gaussian_2D(height, center_x, center_y, width_x, width_y,offset):
     """Returns a gaussian function with the given parameters"""
     width_x = float(width_x)
     width_y = float(width_y)
-    return lambda x,y: height*np.exp(-(((center_x-x)/(2*width_x))**2+((center_y-y)/(2*width_y))**2))+offset
+    return lambda x,y: height*np.exp(-((1/2)*((center_x-x)/(width_x))**2 + (1/2)*((center_y-y)/(width_y))**2))+offset
 
 def intensity_max(data, n):
     ''' Returns  the averaged index of the n highest values of data'''
@@ -357,98 +357,96 @@ def file_sorter(files, splitter):
 
 # plot_MOT_Load(data_processing(MOT_load_files_sorted),filepath_MOT_load+'/MOT_Load')
 
-filepath_BG='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/2018_04_12/Melasse183_2'
-BG_file=[filename for filename in find_bmp_filenames(filepath_BG) if 'BG' in filename][0]
+filepath_BG='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 3 - MOT Temp'
+BG_file=[filename for filename in find_bmp_filenames(filepath_BG) if 'MOT_Temp-0015' in filename][0]
 
-# # MOT_Temp0:
-
-# filepath_MOT_Temp='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/2018_04_12/MOT_Temp'
-# # BG_file=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if 'BG' in filename][0]
-# Splitter_MOT='MOT_Temp0'
-# MOT_Temp_files=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if Splitter_MOT in filename]
-# #print(MOT_Temp_files)
-# #Sort the MOT_files correctly
-
-# MOT_Temp_files_sorted=file_sorter(MOT_Temp_files,Splitter_MOT)
-
-# #Use only the first 4 pictures as programm did error:
-# MOT_Temp_files_sorted= [ MOT_Temp_files_sorted[i] for i in [0,1,3,4,5,6,7]]
-# print(MOT_Temp_files_sorted)
-# MOT_Temp_data=data_processing(MOT_Temp_files_sorted,BG_file)
-# print(MOT_Temp_data.shape[2])
-# plot_Temp(MOT_Temp_data,filepath_MOT_Temp+'/MOT_Temp')
-
-
-
-
-
-# #MOT_Temp1:
-
-# filepath_MOT_Temp2='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/2018_04_12/MOT_Temp_2'
-# # filepath_BG='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/MOT_Ladephase'
-# # BG_file_2=[filename for filename in find_bmp_filenames(filepath_BG) if 'BG' in filename][0]
-# Splitter_MOT_Temp2='MOT_Temp0'
-# MOT_Temp2_files=[filename for filename in find_bmp_filenames(filepath_MOT_Temp2) if Splitter_MOT_Temp2 in filename]
-# #print(MOT_Temp_files)
-# #Sort the MOT_files correctly
-
-# MOT_Temp2_files_sorted=file_sorter(MOT_Temp2_files,Splitter_MOT_Temp2)
-
-# #Use only the first 4 pictures as programm did error:
-# MOT_Temp2_files_sorted=MOT_Temp2_files_sorted[:]
-# print(MOT_Temp_files_sorted)
-# MOT_Temp2_data=data_processing(MOT_Temp2_files_sorted,BG_file)
-# print(MOT_Temp2_data.shape[2])
-# plot_Temp(MOT_Temp2_data,filepath_MOT_Temp2+'/MOT_Temp')
+## MOT_Temp0:
+#
+#filepath_MOT_Temp='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 3 - MOT Temp'
+## BG_file=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if 'BG' in filename][0]
+#Splitter_MOT='MOT_Temp-0'
+#MOT_Temp_files=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if Splitter_MOT in filename]
+##print(MOT_Temp_files)
+##Sort the MOT_files correctly
+#
+#MOT_Temp_files_sorted=file_sorter(MOT_Temp_files,Splitter_MOT)
+#
+##Use only the first 4 pictures as programm did error:
+#MOT_Temp_files_sorted= MOT_Temp_files_sorted[:13]
+#print(MOT_Temp_files_sorted)
+#MOT_Temp_data=data_processing(MOT_Temp_files_sorted,BG_file)
+#print(MOT_Temp_data.shape[2])
+#plot_Temp(MOT_Temp_data,filepath_MOT_Temp+'/MOT_Temp')
 
 
 
 
 
-# #Melasse_Temp:
+##MOT_Temp1:
+#
+#filepath_MOT_Temp2='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018_04_16_Bender-Hagelgans/Temperatur MOT3'
+## filepath_BG='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/MOT_Ladephase'
+## BG_file_2=[filename for filename in find_bmp_filenames(filepath_BG) if 'BG' in filename][0]
+#Splitter_MOT_Temp2='Temperatur'
+#MOT_Temp2_files=[filename for filename in find_bmp_filenames(filepath_MOT_Temp2) if Splitter_MOT_Temp2 in filename]
+##print(MOT_Temp_files)
+##Sort the MOT_files correctly
+#
+#MOT_Temp2_files_sorted=file_sorter(MOT_Temp2_files,Splitter_MOT_Temp2)
+#
+##Use only the first 4 pictures as programm did error:
+#MOT_Temp2_files_sorted=MOT_Temp2_files_sorted[:6]
+#print(MOT_Temp_files_sorted)
+#MOT_Temp2_data=data_processing(MOT_Temp2_files_sorted,BG_file)
+#print(MOT_Temp2_data.shape[2])
+#plot_Temp(MOT_Temp2_data,filepath_MOT_Temp2+'/MOT_Temp')
+#
 
-# filepath_Melasse_Temp = '/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/2018_04_12/Melasse183_0'
-# Splitter_Melasse = 'Melasse0'
-# Melasse_Temp_files = [filename for filename in find_bmp_filenames(filepath_Melasse_Temp) if Splitter_Melasse in filename]
-# # Sort the MOT_files correctly
 
-# Melasse_Temp_files_sorted = file_sorter(Melasse_Temp_files, Splitter_Melasse)
 
-# #Use only the first 4 pictures as programm did error:
-# Melasse_Temp_files_sorted = Melasse_Temp_files_sorted[:5]
-# print(Melasse_Temp_files_sorted)
-# Melasse_Temp_data = data_processing(Melasse_Temp_files_sorted, BG_file)
-# print(Melasse_Temp_data.shape[2])
-# plot_Temp(Melasse_Temp_data, filepath_Melasse_Temp+'/Melasse_Temp')
+
+#Melasse_Temp:
+
+filepath_Melasse_Temp = '/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 4 - Melasse Temp/Melasse 5ms'
+Splitter_Melasse = 'Melasse_Temp_5ms-0'
+Melasse_Temp_files = [filename for filename in find_bmp_filenames(filepath_Melasse_Temp) if Splitter_Melasse in filename]
+# Sort the MOT_files correctly
+Melasse_Temp_files_sorted = file_sorter(Melasse_Temp_files, Splitter_Melasse)
+ #Use only the first 4 pictures as programm did error:
+Melasse_Temp_files_sorted = Melasse_Temp_files_sorted[:11]
+print(Melasse_Temp_files_sorted)
+Melasse_Temp_data = data_processing(Melasse_Temp_files_sorted, BG_file)
+print(Melasse_Temp_data.shape[2])
+plot_Temp(Melasse_Temp_data, filepath_Melasse_Temp+'/Melasse_Temp')
 
 #Melasse_Temp2:
 
-filepath_Melasse_Temp2='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/2018_04_12/Melasse183_2'
-Splitter_Melasse='Melasse0'
+filepath_Melasse_Temp2='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 4 - Melasse Temp/Melasse 7ms'
+Splitter_Melasse='Melasse_Temp_7ms-0'
 Melasse_Temp2_files=[filename for filename in find_bmp_filenames(filepath_Melasse_Temp2) if Splitter_Melasse in filename]
 #Sort the MOT_files correctly
 
 Melasse_Temp2_files_sorted=file_sorter(Melasse_Temp2_files,Splitter_Melasse)
 
 #Use only the first 4 pictures as programm did error:
-Melasse_Temp2_files_sorted=Melasse_Temp2_files_sorted[:]
+Melasse_Temp2_files_sorted=Melasse_Temp2_files_sorted[:12]
 print(Melasse_Temp2_files_sorted)
 Melasse_Temp2_data=data_processing(Melasse_Temp2_files_sorted,BG_file)
 print(Melasse_Temp2_data.shape[2])
 plot_Temp(Melasse_Temp2_data,filepath_Melasse_Temp2+'/Melasse_Temp')
 
-# # Melasse_Temp3:
+# Melasse_Temp3:
 
-# filepath_Melasse_Temp3 = '/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messungen_LK/2018_04_12/Melasse183_4'
-# Splitter_Melasse = 'Melasse0'
-# Melasse_Temp3_files = [filename for filename in find_bmp_filenames(filepath_Melasse_Temp3) if Splitter_Melasse in filename]
-# # Sort the MOT_files correctly
+filepath_Melasse_Temp3 = '/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 4 - Melasse Temp/Melasse 10ms'
+Splitter_Melasse = 'Melasse_Temp_10ms-0'
+Melasse_Temp3_files = [filename for filename in find_bmp_filenames(filepath_Melasse_Temp3) if Splitter_Melasse in filename]
+# Sort the MOT_files correctly
 
-# Melasse_Temp3_files_sorted = file_sorter(Melasse_Temp3_files, Splitter_Melasse)
+Melasse_Temp3_files_sorted = file_sorter(Melasse_Temp3_files, Splitter_Melasse)
 
-# # Use only the first 4 pictures as programm did error:
-# Melasse_Temp3_files_sorted = [Melasse_Temp3_files_sorted[i] for i in [0, 1, 2, 3, 4, 5, 7, 8]]
-# print(Melasse_Temp3_files_sorted)
-# Melasse_Temp3_data = data_processing(Melasse_Temp3_files_sorted, BG_file)
-# print(Melasse_Temp3_data.shape[2])
-# plot_Temp(Melasse_Temp3_data, filepath_Melasse_Temp3 + '/Melasse_Temp')
+# Use only the first 4 pictures as programm did error:
+Melasse_Temp3_files_sorted = Melasse_Temp3_files_sorted[:14]
+print(Melasse_Temp3_files_sorted)
+Melasse_Temp3_data = data_processing(Melasse_Temp3_files_sorted, BG_file)
+print(Melasse_Temp3_data.shape[2])
+plot_Temp(Melasse_Temp3_data, filepath_Melasse_Temp3 + '/Melasse_Temp')
