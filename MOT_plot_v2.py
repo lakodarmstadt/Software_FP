@@ -34,7 +34,7 @@ def intensity_max(data, n):
     return ind_avg.astype(int)
 
 
-def data_1D_av(data,i,j):
+def data_1D_av(data):
     data_i=np.sum(data,axis=0)
     data_j=np.sum(data,axis=1)
     return data_i,data_j
@@ -203,7 +203,7 @@ def fit_gaussian_1D_to_image(data, filename, pixelsize_x=6.7, pixelsize_y=6.7, l
         data_i,data_j=data[:,int(np.round(j,0))],data[int(np.round(i,0)),:]
         filename+='_1D_lin_'+'.pdf'
     else:
-        data_i,data_j=data_1D_av(data,i,j)
+        data_i,data_j=data_1D_av(data)
         filename+='_1D_avg_'+'.pdf'
 
 
@@ -292,8 +292,10 @@ def plot_MOT_Load(data, filename):
     plt.close()
 
 
-def plot_Temp(data,filename,camera_pixel_factor_x=6.7*um,camera_pixel_factor_y=6.7*um):
+def plot_Temp_2D(data,filename,camera_pixel_factor_x=6.7*um,camera_pixel_factor_y=6.7*um):
     width=np.empty((2,data.shape[2]))
+    # print('width_check:')
+    # print(width)
     for i in range(data.shape[2]):
         p,pcov,success=fitgaussian_2D(data[:,:,i])
         fit_gaussian_2D_to_image(data[:,:,i],filename+str(i))
@@ -303,6 +305,7 @@ def plot_Temp(data,filename,camera_pixel_factor_x=6.7*um,camera_pixel_factor_y=6
         #print(width_i,width_j)
         #Transition from i,j to x,y:
         width[:,i]=[width_j*camera_pixel_factor_x,width_i*camera_pixel_factor_y]
+        # print('Width_2D')
         # print(width)
 
     width_squared=width**2
@@ -316,24 +319,84 @@ def plot_Temp(data,filename,camera_pixel_factor_x=6.7*um,camera_pixel_factor_y=6
     #Fit the function sigma_t^2=A+(k_b*T/m)*t^2:
     p_x=np.polyfit(Time_squared,width_squared[0,:],1)
     p_y=np.polyfit(Time_squared,width_squared[1,:],1)
-    print('m_x, m_y:')
+    print('m_x [m^2/s^2], m_y [m^2/s^2]:')
     print(p_x[0],p_y[0])
 
     #Calculate the Temperature in K:
     Temp_x=calc_Temp(p_x[0])
     Temp_y=calc_Temp(p_y[0])
-    print('Temp_x, Temp_y:')
+    print('Temp_x [K], Temp_y [K]:')
     print(Temp_x,Temp_y)
 
     plt.plot(Time_squared*1e6,(width_squared[0,:])*1e12)
     plt.plot(Time_squared*1e6,(Time_squared*p_x[0]+p_x[1])*1e12)
     plt.plot(Time_squared*1e6,(width_squared[1,:])*1e12)
     plt.plot(Time_squared*1e6,(Time_squared*p_y[0]+p_y[1])*1e12)
+    # plt.plot(Time_steps*1e3,(width[0,:])*1e12)
+    # # plt.plot(Time_squared*1e6,(Time_squared*p_x[0]+p_x[1])*1e12)
+    # plt.plot(Time_steps*1e3,(width[1,:])*1e12)
+    # # plt.plot(Time_squared*1e6,(Time_squared*p_y[0]+p_y[1])*1e12)
     plt.xlabel('TOF^2[ms^2]')
     plt.ylabel('width^2 [um^2]')
     plt.title('T_x [mK] is '+str(Temp_x*1e3)+' ;T_y [mK] is '+str(Temp_y*1e3))
     #plt.show()
     plt.savefig(filename+'_eval.pdf')
+    plt.close()
+
+def plot_Temp_1D(data,filename,camera_pixel_factor_x=6.7*um,camera_pixel_factor_y=6.7*um):
+    #data is the 2D-data!
+    width=np.empty((2,data.shape[2]))
+    data_i,data_j=data_1D_av(data)
+    for i in range(data.shape[2]):
+        print('fit_1d:')
+        p_i,pcov_i,success_i=fitgaussian_1D(data_i[:,i])
+        p_j,pcov_j,success_j=fitgaussian_1D(data_j[:,i])
+
+        # Doesn't work yet:
+        fit_gaussian_1D_to_image(data[:,:,i],filename+str(i), lin=False)
+        # print('p_values_1D:')
+        # print(p_i,success_i)
+
+        width_i,width_j=p_i[2],p_j[2]
+        #print(width_i,width_j)
+        #Transition from i,j to x,y:
+        width[:,i]=[width_j*camera_pixel_factor_x,width_i*camera_pixel_factor_y]
+        print('Width_1D')
+        print(width)
+
+    width_squared=width**2
+    # print(width_squared)
+
+    TOF_step=0.25*1e-3
+    Time_steps=np.arange(len(width[0,:]))*TOF_step
+    # print(Time_steps)
+    Time_squared=Time_steps**2
+
+    #Fit the function sigma_t^2=A+(k_b*T/m)*t^2:
+    p_x=np.polyfit(Time_squared,width_squared[0,:],1)
+    p_y=np.polyfit(Time_squared,width_squared[1,:],1)
+    print('m_x [m^2/s^2], m_y [m^2/s^2]:')
+    print(p_x[0],p_y[0])
+
+    #Calculate the Temperature in K:
+    Temp_x=calc_Temp(p_x[0])
+    Temp_y=calc_Temp(p_y[0])
+    print('Temp_x [K], Temp_y [K]:')
+    print(Temp_x,Temp_y)
+
+    plt.plot(Time_squared*1e6,(width_squared[0,:])*1e12)
+    plt.plot(Time_squared*1e6,(Time_squared*p_x[0]+p_x[1])*1e12)
+    plt.plot(Time_squared*1e6,(width_squared[1,:])*1e12)
+    plt.plot(Time_squared*1e6,(Time_squared*p_y[0]+p_y[1])*1e12)
+    # plt.plot(Time_steps*1e3,(width[0,:])*1e12)
+    # # plt.plot(Time_squared*1e6,(Time_squared*p_x[0]+p_x[1])*1e12)
+    # plt.plot(Time_steps*1e3,(width[1,:])*1e12)
+    # # plt.plot(Time_squared*1e6,(Time_squared*p_y[0]+p_y[1])*1e12)
+    plt.xlabel('TOF^2[ms^2]')
+    plt.ylabel('width^2 [um^2]')
+    plt.title('T_x [mK] is '+str(Temp_x*1e3)+' ;T_y [mK] is '+str(Temp_y*1e3))
+    #plt.show()
+    plt.savefig(filename+'_eval_1D.pdf')
     plt.close()
 
 #
@@ -362,24 +425,42 @@ def file_sorter(files, splitter):
 # filepath_BG='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 3 - MOT Temp'
 # BG_file=[filename for filename in find_bmp_filenames(filepath_BG) if 'MOT_Temp-0015' in filename][0]
 
-## MOT_Temp0:
-#
-#filepath_MOT_Temp='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 3 - MOT Temp'
-## BG_file=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if 'BG' in filename][0]
-#Splitter_MOT='MOT_Temp-0'
-#MOT_Temp_files=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if Splitter_MOT in filename]
-##print(MOT_Temp_files)
-##Sort the MOT_files correctly
-#
-#MOT_Temp_files_sorted=file_sorter(MOT_Temp_files,Splitter_MOT)
-#
-##Use only the first 4 pictures as programm did error:
-#MOT_Temp_files_sorted= MOT_Temp_files_sorted[:13]
-#print(MOT_Temp_files_sorted)
-#MOT_Temp_data=data_processing(MOT_Temp_files_sorted,BG_file)
-#print(MOT_Temp_data.shape[2])
-#plot_Temp(MOT_Temp_data,filepath_MOT_Temp+'/MOT_Temp')
+# MOT_Temp0:
 
+filepath_MOT_Temp='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018_04_16_Bender-Hagelgans/Temperatur MOT2'
+BG_file=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if 'bg' in filename][0]
+Splitter_MOT='Temperatur0'
+MOT_Temp_files=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if Splitter_MOT in filename]
+#print(MOT_Temp_files)
+#Sort the MOT_files correctly
+
+MOT_Temp_files_sorted=file_sorter(MOT_Temp_files,Splitter_MOT)
+
+#Use only the first 4 pictures as programm did error:
+MOT_Temp_files_sorted= MOT_Temp_files_sorted[:13]
+print(MOT_Temp_files_sorted)
+MOT_Temp_data=data_processing(MOT_Temp_files_sorted,BG_file)
+# print(MOT_Temp_data.shape[2])
+plot_Temp_2D(MOT_Temp_data,filepath_MOT_Temp+'/MOT_Temp')
+
+
+# MOT_Temp1:
+
+# filepath_MOT_Temp='/home/lars/Dokumente/Lars_Kohfahl/Studium/PhD/Lehre/FP/Messdaten_Experimente/2018/2018-04-23 Karg Dormann/Aufgabe 3 - MOT Temp'
+# # BG_file=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if 'BG' in filename][0]
+# Splitter_MOT='MOT_Temp-0'
+# MOT_Temp_files=[filename for filename in find_bmp_filenames(filepath_MOT_Temp) if Splitter_MOT in filename]
+# #print(MOT_Temp_files)
+# #Sort the MOT_files correctly
+
+# MOT_Temp_files_sorted=file_sorter(MOT_Temp_files,Splitter_MOT)
+
+# #Use only the first 4 pictures as programm did error:
+# MOT_Temp_files_sorted= MOT_Temp_files_sorted[:13]
+# print(MOT_Temp_files_sorted)
+# MOT_Temp_data=data_processing(MOT_Temp_files_sorted,BG_file)
+# print(MOT_Temp_data_1D.shape[2])
+plot_Temp_1D(MOT_Temp_data,filepath_MOT_Temp+'/MOT_Temp')
 
 
 
